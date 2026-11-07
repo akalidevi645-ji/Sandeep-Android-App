@@ -1,0 +1,41 @@
+
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'SANDEEP CODE STUDIO .zip'
+      - '.github/workflows/android-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract Android project
+        run: |
+          mkdir android-project
+          unzip -q "SANDEEP CODE STUDIO .zip" -d android-project
+          find android-project -name settings.gradle -print
+
+      - name: Build APK
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.7'
+          arguments: -p android-project assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sandeep-Android-APK
+          path: android-project/**/build/outputs/apk/**/*.apk
